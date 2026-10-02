@@ -1,0 +1,21 @@
+spec_version: "0.1.0"
+name: "mcp-agents"
+version: "0.2.6"
+description: "Composable Model Context Protocol (MCP) agent framework supporting multi-agent patterns, dynamic server orchestration, human-in-the-loop governance, and distributed execution."
+author: "Sarmad Qadri <sarmad@lastmileai.dev>"
+license: "Apache-2.0"
+metadata:
+  domain: "Developer Tools / Model Context Protocol (MCP) Multi-Agent Framework"
+  category: "Developer Tools"
+  framework: "mcp-agent"
+  language: "Python"
+skills:
+  - "mcp-server-orchestration"
+  - "workflow-pattern-routing"
+  - "human-in-the-loop-governance"
+  - "temporal-distributed-execution"
+tools:
+  - "mcp-server-connector"
+  - "workflow-router-engine"
+  - "evaluator-optimizer-gate"
+  - "human-approval-interceptor"

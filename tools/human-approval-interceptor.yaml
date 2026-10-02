@@ -1,0 +1,26 @@
+name: human-approval-interceptor
+description: Suspends agent workflow execution to solicit explicit human approval for high-risk or irreversible operations.
+input_schema:
+  type: object
+  properties:
+    action_description:
+      type: string
+      description: Clear summary of the proposed action awaiting confirmation.
+    risk_level:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+        - critical
+      description: Assessed risk classification of the operation.
+    payload:
+      type: object
+      description: The exact parameters and payload destined for the underlying MCP tool.
+    timeout_seconds:
+      type: integer
+      description: Maximum time to await human input before timing out and failing closed.
+  required:
+    - action_description
+    - risk_level
+    - payload

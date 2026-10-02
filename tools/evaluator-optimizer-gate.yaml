@@ -1,0 +1,22 @@
+name: evaluator-optimizer-gate
+description: Evaluates generated agent outputs against rubric criteria and coordinates iterative optimization loops.
+input_schema:
+  type: object
+  properties:
+    candidate_output:
+      type: string
+      description: The response text or artifact produced by the generator agent.
+    rubric_criteria:
+      type: array
+      items:
+        type: string
+      description: List of qualitative and quantitative validation rules.
+    current_iteration:
+      type: integer
+      description: Current zero-indexed iteration count in the optimization loop.
+    max_iterations:
+      type: integer
+      description: Maximum permitted iteration cycles before forced completion or termination.
+  required:
+    - candidate_output
+    - rubric_criteria

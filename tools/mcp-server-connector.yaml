@@ -1,0 +1,30 @@
+name: mcp-server-connector
+description: Establishes client connections to external MCP servers and enumerates tools, resources, and prompt templates.
+input_schema:
+  type: object
+  properties:
+    server_name:
+      type: string
+      description: Identifier of the target MCP server configured in the registry.
+    transport_type:
+      type: string
+      enum:
+        - stdio
+        - sse
+        - websocket
+      description: Communication transport mechanism.
+    command_or_url:
+      type: string
+      description: Shell command for stdio or endpoint URL for SSE/WebSocket.
+    action:
+      type: string
+      enum:
+        - connect
+        - list_tools
+        - list_resources
+        - disconnect
+      description: Lifecycle action to execute on the server connection.
+  required:
+    - server_name
+    - transport_type
+    - action

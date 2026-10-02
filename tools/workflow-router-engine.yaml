@@ -1,0 +1,26 @@
+name: workflow-router-engine
+description: Analyzes input prompts and routes tasks to candidate specialized sub-agents based on computed affinity scoring.
+input_schema:
+  type: object
+  properties:
+    query:
+      type: string
+      description: The user prompt or task description to be classified.
+    candidate_agents:
+      type: array
+      items:
+        type: string
+      description: List of available specialized agent personas for delegation.
+    routing_strategy:
+      type: string
+      enum:
+        - semantic_similarity
+        - llm_classifier
+        - regex_rule
+      description: Algorithmic strategy for intent classification.
+    min_confidence_threshold:
+      type: number
+      description: Minimum confidence score required to commit routing without fallback.
+  required:
+    - query
+    - candidate_agents
