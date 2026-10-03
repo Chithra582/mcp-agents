@@ -1,8 +1,8 @@
 # EXPLAINABILITY.md
 
-This document explains the internal mechanisms, data lineage, operational boundaries, and governance framework of **# Explainability & Decision Transparency Report** (`mcp-agents`) in accordance with the **OpenGAP v0.1.0** specification for the **HiDevs GitAgent Passport** clearance pipeline.
+This document explains the internal mechanisms, data lineage, operational boundaries, and governance framework of **MCP Agents** (`mcp-agents`) in accordance with the **OpenGAP v0.1.0** specification for the **HiDevs GitAgent Passport** clearance pipeline.
 
-> **Agent Name:** # Explainability & Decision Transparency Report (`mcp-agents`)  
+> **Agent Name:** MCP Agents (`mcp-agents`)  
 > **Specification:** OpenGAP v0.1.0  
 > **Category / Domain:** Developer Tools / Model Context Protocol (MCP) Multi-Agent Framework  
 > **Compliance Standard:** OpenGAP Checkpoint 2 (Explainability & Decision Governance), OWASP LLM Top 10, MITRE ATLAS  
@@ -11,7 +11,7 @@ This document explains the internal mechanisms, data lineage, operational bounda
 
 ## How the Agent Decides
 
-# Explainability & Decision Transparency Report operates via a deterministic five-stage operational pipeline.
+The agent operates via a strictly disciplined, 5-stage deterministic execution pipeline coordinating MCP server discovery, routing, tool invocation, human governance, and result evaluation.
 
 ### 1. Decision Architecture
 
@@ -52,7 +52,6 @@ The runtime intake, state classification, evaluation, and execution tracking ope
 
 ### 2. Decision Logic & Routing Formulations
 
-Scoring
 Routing confidence across candidate specialized sub-agents $a \in A$ for an input query $q$ is determined by a normalized multi-factor affinity scoring function:
 
 $$S_{\text{affinity}}(a) = w_1 \cdot \text{CosineSimilarity}(\mathbf{e}_q, \mathbf{e}_a) + w_2 \cdot \text{ToolCoverage}(a, q) + w_3 \cdot \text{HistoricalSuccess}(a)$$
@@ -70,29 +69,31 @@ Where $r_i(y) \in [0, 1]$ represents compliance with rubric criterion $i$, weigh
 
 ### 3. Thresholding & Refusal Decision Criteria
 
-# Explainability & Decision Transparency Report enforces strict operational boundaries and deterministic refusal thresholds:
-- **Refusal on ERR_MCP_TRANSPORT_CONNECTION_FAILED**: **Transport Connectivity** halts execution with code `ERR_MCP_TRANSPORT_CONNECTION_FAILED`.
-- **Refusal on ERR_LOW_ROUTING_CONFIDENCE**: **Routing Confidence** halts execution with code `ERR_LOW_ROUTING_CONFIDENCE`.
-- **Refusal on ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL**: **High-Risk Tool Operation** halts execution with code `ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL`.
-- **Refusal on ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP**: **Optimization Loop Cap** halts execution with code `ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP`.
-- **Refusal on ERR_HUMAN_APPROVAL_TIMEOUT**: **Human Review Timeout** halts execution with code `ERR_HUMAN_APPROVAL_TIMEOUT`.
+MCP Agents enforces strict operational boundaries and deterministic refusal thresholds:
+- **Refusal on ERR_MCP_TRANSPORT_CONNECTION_FAILED**: Transport Connectivity (Ping response > 5000 ms or connection lost) halts execution with code `ERR_MCP_TRANSPORT_CONNECTION_FAILED`.
+- **Refusal on ERR_LOW_ROUTING_CONFIDENCE**: Routing Confidence ($S_{\text{affinity}} < 0.70$) halts execution with code `ERR_LOW_ROUTING_CONFIDENCE`.
+- **Refusal on ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL**: High-Risk Tool Operation (Write/Delete action without approval) halts execution with code `ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL`.
+- **Refusal on ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP**: Optimization Loop Cap (Iteration count $\ge 5$) halts execution with code `ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP`.
+- **Refusal on ERR_HUMAN_APPROVAL_TIMEOUT**: Human Review Timeout (Operator response time > 300 s) halts execution with code `ERR_HUMAN_APPROVAL_TIMEOUT`.
 
 ### 4. Fallback Decision Mechanism
 
 Continuous operational stability is maintained through layered fault recovery:
+- **Tier 1 (Automated Transport & Tool Retry)**: Transient network errors or JSONRPC timeouts trigger up to 3 automatic retries with exponential backoff before marking an MCP server unavailable.
+- **Tier 2 (Model & Workflow Rerouting)**: If a specialized subagent fails to generate a valid tool call, the router falls back to a primary orchestrator model with full tool schema context.
 - **Model Fallback Cascade**: High-level reasoning and synthesis default to `gemini-2.0-flash` with automatic failover to `gpt-4o` and `claude-3-5-sonnet`.
 
 ### 5. Human-in-the-Loop Governance
 
 Human operators retain sovereign authority over the multi-agent execution lifecycle:
-- **Consequential Action Sign-Off**: Sensitive and consequential actions require operator sign-off.
-- **Offline Ledger Auditing**: Operators can verify execution records and state transitions offline.
+- **Tier 3 (HumanintheLoop Escalation)**: Irreversible state alterations or persistent validation failures halt the workflow, presenting a structured diff to human operators for affirmative approval or manual remediation.
+- **Benchmark Trajectory Auditing**: Operators inspect evaluation traces, raw generation tokens, and container logs to verify scoring fidelity.
 
 ---
 
 ## The Data It Uses
 
-# Explainability & Decision Transparency Report operates under strict principles of data minimization, environment isolation, and privacy protection.
+MCP Agents operates under strict principles of data minimization, environment isolation, and privacy protection.
 
 ### 1. Ingested Input Data
 
@@ -103,7 +104,9 @@ The framework processes only operational data necessary to perform its functions
 
 ### 2. Configuration & Reference Data
 
-- **Configuration Schemas**: Declarative system policy files.
+- **Model Context Protocol (MCP)**: Open standard for LLM-tool interoperability over stdio, SSE, and WebSocket.
+- **Agent Workflow Archetypes**: Prompt Chaining, Routing, Parallelization, Orchestrator-Workers, Evaluator-Optimizer.
+- **Distributed Durability**: Temporal workflow definitions and state transitions.
 
 ### 3. Base Model & Inference Lineage
 
@@ -121,7 +124,7 @@ The framework processes only operational data necessary to perform its functions
 
 ## Limitations
 
-Understanding the operational boundaries and technical constraints of # Explainability & Decision Transparency Report is essential for effective deployment.
+Understanding the operational boundaries and technical constraints of MCP Agents is essential for effective deployment.
 
 ### 1. High-Latency Tool Discovery Over Network SSE/WebSocket Transports
 - **Limitation**: Discovering large tool suites over high-latency SSE or remote WebSocket connections can delay initial query processing.
