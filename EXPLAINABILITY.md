@@ -11,8 +11,7 @@ This document explains the internal mechanisms, data lineage, operational bounda
 
 ## How the Agent Decides
 
-### 1. Deterministic Multi-Stage Decision Pipeline
-The agent operates via a strictly disciplined, 5-stage deterministic execution pipeline coordinating MCP server discovery, routing, tool invocation, human governance, and result evaluation.
+# Explainability & Decision Transparency Report operates via a deterministic five-stage operational pipeline.
 
 ### 1. Decision Architecture
 
@@ -53,13 +52,30 @@ The runtime intake, state classification, evaluation, and execution tracking ope
 
 ### 2. Decision Logic & Routing Formulations
 
+Scoring
+Routing confidence across candidate specialized sub-agents $a \in A$ for an input query $q$ is determined by a normalized multi-factor affinity scoring function:
 
+$$S_{\text{affinity}}(a) = w_1 \cdot \text{CosineSimilarity}(\mathbf{e}_q, \mathbf{e}_a) + w_2 \cdot \text{ToolCoverage}(a, q) + w_3 \cdot \text{HistoricalSuccess}(a)$$
+
+Where:
+- $w_1 = 0.50$: Semantic embedding proximity between query intent $\mathbf{e}_q$ and agent specialization $\mathbf{e}_a$.
+- $w_2 = 0.35$: Fraction of required MCP tools exposed by servers mapped to agent $a$.
+- $w_3 = 0.15$: Tracked historical task completion rate for agent persona $a$.
+
+For the Evaluator-Optimizer workflow pattern, output refinement terminates when the quality score satisfies:
+
+$$Q_{\text{eval}}(y) = \sum_{i=1}^{M} \lambda_i \cdot r_i(y) \ge \tau_{\text{quality}}$$
+
+Where $r_i(y) \in [0, 1]$ represents compliance with rubric criterion $i$, weights $\sum \lambda_i = 1$, and $\tau_{\text{quality}} = 0.85$.
 
 ### 3. Thresholding & Refusal Decision Criteria
 
 # Explainability & Decision Transparency Report enforces strict operational boundaries and deterministic refusal thresholds:
-- **Refusal on Policy Violation**: Requests violating boundary constraints halt with code `ERR_POLICY_VIOLATION`.
-- **Refusal on Timeout**: Executions exceeding budget limits terminate with code `ERR_EXECUTION_TIMEOUT`.
+- **Refusal on ERR_MCP_TRANSPORT_CONNECTION_FAILED**: **Transport Connectivity** halts execution with code `ERR_MCP_TRANSPORT_CONNECTION_FAILED`.
+- **Refusal on ERR_LOW_ROUTING_CONFIDENCE**: **Routing Confidence** halts execution with code `ERR_LOW_ROUTING_CONFIDENCE`.
+- **Refusal on ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL**: **High-Risk Tool Operation** halts execution with code `ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL`.
+- **Refusal on ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP**: **Optimization Loop Cap** halts execution with code `ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP`.
+- **Refusal on ERR_HUMAN_APPROVAL_TIMEOUT**: **Human Review Timeout** halts execution with code `ERR_HUMAN_APPROVAL_TIMEOUT`.
 
 ### 4. Fallback Decision Mechanism
 
@@ -69,8 +85,8 @@ Continuous operational stability is maintained through layered fault recovery:
 ### 5. Human-in-the-Loop Governance
 
 Human operators retain sovereign authority over the multi-agent execution lifecycle:
-- **Operational Review**: Sensitive actions require operator sign-off.
-- **Audit Logging**: All decisions are recorded for auditability.
+- **Consequential Action Sign-Off**: Sensitive and consequential actions require operator sign-off.
+- **Offline Ledger Auditing**: Operators can verify execution records and state transitions offline.
 
 ---
 
@@ -81,11 +97,13 @@ Human operators retain sovereign authority over the multi-agent execution lifecy
 ### 1. Ingested Input Data
 
 The framework processes only operational data necessary to perform its functions:
-- **Input Directives**: Operational tasks and data payloads.
+- **User Instructions & Prompts**: Natural language queries, task objectives, and domain parameters.
+- **MCP Protocol Schemas**: Tool definitions, resource URIs, and prompt templates retrieved via JSON-RPC 2.0.
+- **Telemetry & Trace Events**: OpenTelemetry trace spans, execution latencies, and tool error payloads.
 
 ### 2. Configuration & Reference Data
 
-- **Configuration Schemas**: Declarative system configuration files.
+- **Configuration Schemas**: Declarative system policy files.
 
 ### 3. Base Model & Inference Lineage
 
@@ -104,101 +122,6 @@ The framework processes only operational data necessary to perform its functions
 ## Limitations
 
 Understanding the operational boundaries and technical constraints of # Explainability & Decision Transparency Report is essential for effective deployment.
-
-### 1. Deterministic Multi-Stage Decision Pipeline
-The agent operates via a strictly disciplined, 5-stage deterministic execution pipeline coordinating MCP server discovery, routing, tool invocation, human governance, and result evaluation.
-
-```
-+-----------------------------------------------------------------------------------+
-|                        Deterministic MCP Agent Pipeline                           |
-+-----------------------------------------------------------------------------------+
-|  [Stage 1: Intent Ingestion & Protocol Handshake Gate]                            |
-|     --> Receive task prompt, verify active MCP connections, and enumerate tools   |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 2: Workflow Pattern Selection & Subagent Routing]                         |
-|     --> Compute routing affinity; select Router, Parallel, or Orchestrator mode   |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 3: Tool Invocation & Risk Assessment Interception]                        |
-|     --> Filter MCP tool schemas; intercept sensitive operations for human approval|
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 4: Execution, Telemetry Tracing & Error Handling]                         |
-|     --> Execute approved tools over JSON-RPC; emit OTel spans; handle retries     |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 5: Evaluator-Optimizer Review & Output Synthesis]                         |
-|     --> Critique candidate output against rubric; finalize or loop for refinement |
-+-----------------------------------------------------------------------------------+
-```
-
-### 2. Mathematical Decision & Affinity Scoring
-Routing confidence across candidate specialized sub-agents $a \in A$ for an input query $q$ is determined by a normalized multi-factor affinity scoring function:
-
-$$S_{\text{affinity}}(a) = w_1 \cdot \text{CosineSimilarity}(\mathbf{e}_q, \mathbf{e}_a) + w_2 \cdot \text{ToolCoverage}(a, q) + w_3 \cdot \text{HistoricalSuccess}(a)$$
-
-Where:
-- $w_1 = 0.50$: Semantic embedding proximity between query intent $\mathbf{e}_q$ and agent specialization $\mathbf{e}_a$.
-- $w_2 = 0.35$: Fraction of required MCP tools exposed by servers mapped to agent $a$.
-- $w_3 = 0.15$: Tracked historical task completion rate for agent persona $a$.
-
-For the Evaluator-Optimizer workflow pattern, output refinement terminates when the quality score satisfies:
-
-$$Q_{\text{eval}}(y) = \sum_{i=1}^{M} \lambda_i \cdot r_i(y) \ge \tau_{\text{quality}}$$
-
-Where $r_i(y) \in [0, 1]$ represents compliance with rubric criterion $i$, weights $\sum \lambda_i = 1$, and $\tau_{\text{quality}} = 0.85$.
-
-### 3. Thresholding & Refusal Decision Criteria
-Execution is gated by deterministic quantitative boundaries; operations violating boundaries trigger immediate refusals with standardized error codes:
-
-| Threshold Parameter | Value | Decision / Refusal Action | Error Code |
-| :--- | :--- | :--- | :--- |
-| **Transport Connectivity** | Ping response > 5000 ms or connection lost | Refuse tool execution and enter reconnect state | `ERR_MCP_TRANSPORT_CONNECTION_FAILED` |
-| **Routing Confidence** | $S_{\text{affinity}} < 0.70$ | Refuse automated routing; solicit user disambiguation | `ERR_LOW_ROUTING_CONFIDENCE` |
-| **High-Risk Tool Operation** | Write/Delete action without approval | Block tool execution and request operator sign-off | `ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL` |
-| **Optimization Loop Cap** | Iteration count $\ge 5$ | Terminate refinement loop; return best candidate | `ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP` |
-| **Human Review Timeout** | Operator response time > 300 s | Fail-closed and abort pending high-risk operation | `ERR_HUMAN_APPROVAL_TIMEOUT` |
-
-### 4. Multi-Tier Fallback Mechanisms & Human-in-the-Loop Governance
-1. **Tier 1 (Automated Transport & Tool Retry)**: Transient network errors or JSON-RPC timeouts trigger up to 3 automatic retries with exponential backoff before marking an MCP server unavailable.
-2. **Tier 2 (Model & Workflow Re-routing)**: If a specialized sub-agent fails to generate a valid tool call, the router falls back to a primary orchestrator model with full tool schema context.
-3. **Tier 3 (Human-in-the-Loop Escalation)**: Irreversible state alterations or persistent validation failures halt the workflow, presenting a structured diff to human operators for affirmative approval or manual remediation.
-
----
-
-## The Data It Uses
-
-### 1. Ingestion Data & Input Types
-- **User Instructions & Prompts**: Natural language queries, task objectives, and domain parameters.
-- **MCP Protocol Schemas**: Tool definitions, resource URIs, and prompt templates retrieved via JSON-RPC 2.0.
-- **Telemetry & Trace Events**: OpenTelemetry trace spans, execution latencies, and tool error payloads.
-
-### 2. Reference Standards & Methodologies
-- **Model Context Protocol (MCP)**: Open standard for LLM-tool interoperability over stdio, SSE, and WebSocket.
-- **Agent Workflow Archetypes**: Prompt Chaining, Routing, Parallelization, Orchestrator-Workers, Evaluator-Optimizer.
-- **Distributed Durability**: Temporal workflow definitions and state transitions.
-
-### 3. Model Lineage & System Architecture
-- **Host LLM Providers**: Anthropic Claude, OpenAI GPT, Google Gemini, AWS Bedrock, Azure OpenAI.
-- **Runtime Environment**: Python 3.10+, FastAPI, AnyIO, Uvicorn, Temporal.io Python SDK.
-
-### 4. Data Privacy, Governance & Retention
-- **Local Secret Isolation**: Server environment variables and API tokens are resolved locally and never transmitted across agent hops.
-- **Ephemeral Session Context**: Agent prompt histories are retained solely for the lifespan of active conversations unless persisted in temporal storage.
-- **Zero Third-Party Telemetry**: Traces and metrics are exported strictly to user-configured OTLP collector endpoints.
-
----
-
-## Limitations
 
 ### 1. High-Latency Tool Discovery Over Network SSE/WebSocket Transports
 - **Limitation**: Discovering large tool suites over high-latency SSE or remote WebSocket connections can delay initial query processing.
@@ -238,102 +161,7 @@ Execution is gated by deterministic quantitative boundaries; operations violatin
 | - Base model lineage & deterministic engines | Section 3 | Verified |
 | - Data privacy, retention lifecycle & MITRE/OWASP | Section 4 | Verified |
 | **Its limitations** | [Limitations](#limitations) | **Covered** |
-| - Deterministic Multi-Stage Decision Pipeline
-The agent operates via a strictly disciplined, 5-stage deterministic execution pipeline coordinating MCP server discovery, routing, tool invocation, human governance, and result evaluation.
-
-```
-+-----------------------------------------------------------------------------------+
-|                        Deterministic MCP Agent Pipeline                           |
-+-----------------------------------------------------------------------------------+
-|  [Stage 1: Intent Ingestion & Protocol Handshake Gate]                            |
-|     --> Receive task prompt, verify active MCP connections, and enumerate tools   |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 2: Workflow Pattern Selection & Subagent Routing]                         |
-|     --> Compute routing affinity; select Router, Parallel, or Orchestrator mode   |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 3: Tool Invocation & Risk Assessment Interception]                        |
-|     --> Filter MCP tool schemas; intercept sensitive operations for human approval|
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 4: Execution, Telemetry Tracing & Error Handling]                         |
-|     --> Execute approved tools over JSON-RPC; emit OTel spans; handle retries     |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|  [Stage 5: Evaluator-Optimizer Review & Output Synthesis]                         |
-|     --> Critique candidate output against rubric; finalize or loop for refinement |
-+-----------------------------------------------------------------------------------+
-```
-
-### 2. Mathematical Decision & Affinity Scoring
-Routing confidence across candidate specialized sub-agents $a \in A$ for an input query $q$ is determined by a normalized multi-factor affinity scoring function:
-
-$$S_{\text{affinity}}(a) = w_1 \cdot \text{CosineSimilarity}(\mathbf{e}_q, \mathbf{e}_a) + w_2 \cdot \text{ToolCoverage}(a, q) + w_3 \cdot \text{HistoricalSuccess}(a)$$
-
-Where:
-- $w_1 = 0.50$: Semantic embedding proximity between query intent $\mathbf{e}_q$ and agent specialization $\mathbf{e}_a$.
-- $w_2 = 0.35$: Fraction of required MCP tools exposed by servers mapped to agent $a$.
-- $w_3 = 0.15$: Tracked historical task completion rate for agent persona $a$.
-
-For the Evaluator-Optimizer workflow pattern, output refinement terminates when the quality score satisfies:
-
-$$Q_{\text{eval}}(y) = \sum_{i=1}^{M} \lambda_i \cdot r_i(y) \ge \tau_{\text{quality}}$$
-
-Where $r_i(y) \in [0, 1]$ represents compliance with rubric criterion $i$, weights $\sum \lambda_i = 1$, and $\tau_{\text{quality}} = 0.85$.
-
-### 3. Thresholding & Refusal Decision Criteria
-Execution is gated by deterministic quantitative boundaries; operations violating boundaries trigger immediate refusals with standardized error codes:
-
-| Threshold Parameter | Value | Decision / Refusal Action | Error Code |
-| :--- | :--- | :--- | :--- |
-| **Transport Connectivity** | Ping response > 5000 ms or connection lost | Refuse tool execution and enter reconnect state | `ERR_MCP_TRANSPORT_CONNECTION_FAILED` |
-| **Routing Confidence** | $S_{\text{affinity}} < 0.70$ | Refuse automated routing; solicit user disambiguation | `ERR_LOW_ROUTING_CONFIDENCE` |
-| **High-Risk Tool Operation** | Write/Delete action without approval | Block tool execution and request operator sign-off | `ERR_UNAUTHORIZED_DESTRUCTIVE_TOOL` |
-| **Optimization Loop Cap** | Iteration count $\ge 5$ | Terminate refinement loop; return best candidate | `ERR_EVALUATOR_OPTIMIZER_ITERATION_CAP` |
-| **Human Review Timeout** | Operator response time > 300 s | Fail-closed and abort pending high-risk operation | `ERR_HUMAN_APPROVAL_TIMEOUT` |
-
-### 4. Multi-Tier Fallback Mechanisms & Human-in-the-Loop Governance
-1. **Tier 1 (Automated Transport & Tool Retry)**: Transient network errors or JSON-RPC timeouts trigger up to 3 automatic retries with exponential backoff before marking an MCP server unavailable.
-2. **Tier 2 (Model & Workflow Re-routing)**: If a specialized sub-agent fails to generate a valid tool call, the router falls back to a primary orchestrator model with full tool schema context.
-3. **Tier 3 (Human-in-the-Loop Escalation)**: Irreversible state alterations or persistent validation failures halt the workflow, presenting a structured diff to human operators for affirmative approval or manual remediation.
-
----
-
-## The Data It Uses
-
-### 1. Ingestion Data & Input Types
-- **User Instructions & Prompts**: Natural language queries, task objectives, and domain parameters.
-- **MCP Protocol Schemas**: Tool definitions, resource URIs, and prompt templates retrieved via JSON-RPC 2.0.
-- **Telemetry & Trace Events**: OpenTelemetry trace spans, execution latencies, and tool error payloads.
-
-### 2. Reference Standards & Methodologies
-- **Model Context Protocol (MCP)**: Open standard for LLM-tool interoperability over stdio, SSE, and WebSocket.
-- **Agent Workflow Archetypes**: Prompt Chaining, Routing, Parallelization, Orchestrator-Workers, Evaluator-Optimizer.
-- **Distributed Durability**: Temporal workflow definitions and state transitions.
-
-### 3. Model Lineage & System Architecture
-- **Host LLM Providers**: Anthropic Claude, OpenAI GPT, Google Gemini, AWS Bedrock, Azure OpenAI.
-- **Runtime Environment**: Python 3.10+, FastAPI, AnyIO, Uvicorn, Temporal.io Python SDK.
-
-### 4. Data Privacy, Governance & Retention
-- **Local Secret Isolation**: Server environment variables and API tokens are resolved locally and never transmitted across agent hops.
-- **Ephemeral Session Context**: Agent prompt histories are retained solely for the lifespan of active conversations unless persisted in temporal storage.
-- **Zero Third-Party Telemetry**: Traces and metrics are exported strictly to user-configured OTLP collector endpoints.
-
----
-
-## Limitations
-
-### 1. High-Latency Tool Discovery Over Network SSE/WebSocket Transports | Section 1 | Verified |
+| - High-Latency Tool Discovery Over Network SSE/WebSocket Transports | Section 1 | Verified |
 | - Context Window Consumption During Parallel Multi-Agent Aggregation | Section 2 | Verified |
 | - Non-Deterministic Evaluation Scoring in Subjective Critique Loops | Section 3 | Verified |
 | - Stdio Child Process Lifecycle Drift and Orphaned Connections | Section 4 | Verified |
